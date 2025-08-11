@@ -75,23 +75,22 @@
 	// Actions menu handled by shared component
 </script>
 
-<div class="mx-auto max-w-3xl space-y-6 p-6">
-	<header class="flex items-center justify-between gap-2">
-		<h1 class="text-2xl font-semibold tracking-tight">ML Project Checklist</h1>
+<div class="mx-auto max-w-3xl space-y-4 p-4">
+	<header class="flex items-center justify-end gap-2">
 		<div class="flex items-center gap-2">
-			<button
-				class="inline-flex items-center gap-1 rounded border border-gray-200 bg-white/80 px-3 py-2 text-gray-700 shadow-sm backdrop-blur hover:bg-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-200 dark:hover:bg-gray-800 dark:focus-visible:ring-offset-gray-900"
-				onclick={onImport}
-			>
-				<Upload size={16} aria-hidden="true" />
-				<span>Import</span>
-			</button>
 			<button
 				class="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-white shadow-sm hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none dark:focus-visible:ring-offset-gray-900"
 				onclick={onNewProject}
 			>
 				<Plus size={16} aria-hidden="true" />
 				<span>New Project</span>
+			</button>
+			<button
+				class="inline-flex items-center gap-1 rounded border border-gray-200 bg-white/80 px-3 py-2 text-gray-700 shadow-sm backdrop-blur hover:bg-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-200 dark:hover:bg-gray-800 dark:focus-visible:ring-offset-gray-900"
+				onclick={onImport}
+			>
+				<Upload size={16} aria-hidden="true" />
+				<span>Import</span>
 			</button>
 		</div>
 	</header>
