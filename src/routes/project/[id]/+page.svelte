@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
   import { projects } from '$lib/stores/projects';
   import type { Project } from '$lib/types';
+  import ChecklistSection from '$lib/components/ChecklistSection.svelte';
 
   let params = $state<{ id: string }>({ id: '' });
   $effect(() => {
@@ -29,6 +30,11 @@
     const target = e.target as HTMLTextAreaElement;
     projects.updateNotes(projectId, sectionId, target.value);
   }
+
+  // For component usage (NotesEditor emits value directly)
+  function updateNotesValue(sectionId: string, value: string) {
+    projects.updateNotes(projectId, sectionId, value);
+  }
 </script>
 
 <div class="mx-auto max-w-4xl p-6 space-y-8">
@@ -46,30 +52,11 @@
 
     <section class="space-y-8">
       {#each project.sections as sec (sec.id)}
-        <div class="rounded border bg-white p-4">
-          <h2 class="mb-3 text-lg font-medium">{sec.title}</h2>
-          <ul class="space-y-2">
-            {#each sec.items as item (item.id)}
-              <li class="flex items-start gap-3">
-                <input id={item.id} type="checkbox" class="mt-1" checked={item.checked} onchange={() => toggle(sec.id, item.id)} />
-                <label class="select-text leading-6" for={item.id}>{item.text}</label>
-              </li>
-            {/each}
-          </ul>
-
-          <div class="mt-4">
-            {#key sec.id}
-              <label class="mb-1 block text-sm font-medium text-gray-700" for={"notes-" + sec.id}>Notes</label>
-              <textarea
-                id={"notes-" + sec.id}
-                class="w-full rounded border p-2"
-                rows={4}
-                value={sec.notes}
-                oninput={(e) => updateNotes(sec.id, e)}
-              ></textarea>
-            {/key}
-          </div>
-        </div>
+        <ChecklistSection
+          section={sec}
+          onToggle={toggle}
+          onNotes={updateNotesValue}
+        />
       {/each}
     </section>
   {/if}
