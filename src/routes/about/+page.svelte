@@ -55,4 +55,21 @@
 			is stored locally.
 		</p>
 	</section>
+
+	<section
+		class="space-y-3 border-t border-gray-200 pt-6 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-400"
+	>
+		<p>
+			Crafted by
+			<a
+				href="https://www.chrisjmears.com"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="font-medium text-blue-700 hover:underline dark:text-blue-400"
+			>
+				Chris J Mears
+			</a>
+			and inspired by the book <em>Hands-On Machine Learning</em> by Aurélien Géron.
+		</p>
+	</section>
 </div>

@@ -9,7 +9,6 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<!-- Prevent theme FOUC: set initial theme class ASAP -->
 	<script>
 		(function () {
 			try {
