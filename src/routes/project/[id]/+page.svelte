@@ -2,7 +2,9 @@
   import { page } from '$app/stores';
   import { projects } from '$lib/stores/projects';
   import type { Project } from '$lib/types';
+  import type { ChecklistItem as TChecklistItem } from '$lib/types';
   import ChecklistSection from '$lib/components/ChecklistSection.svelte';
+  import ProgressBar from '$lib/components/ProgressBar.svelte';
 
   let params = $state<{ id: string }>({ id: '' });
   $effect(() => {
@@ -21,6 +23,18 @@
     return unsub;
   });
   const project = $derived(allProjects[projectId]);
+
+  // Overall project progress
+  const totalItems = $derived(!project ? 0 : project.sections.reduce((sum, sec) => sum + sec.items.length, 0));
+  const completedItems = $derived(
+    !project
+      ? 0
+      : project.sections.reduce(
+          (sum, sec) => sum + sec.items.filter((i: TChecklistItem) => i.checked).length,
+          0
+        )
+  );
+  const progressValue = $derived(totalItems === 0 ? 0 : completedItems / totalItems);
 
   function toggle(sectionId: string, itemId: string) {
     projects.toggleItem(projectId, sectionId, itemId);
@@ -45,9 +59,12 @@
   {#if !project}
     <p class="text-red-600">Project not found.</p>
   {:else}
-    <header class="space-y-1">
+    <header class="space-y-2">
       <h1 class="text-2xl font-semibold">{project.name}</h1>
       <p class="text-sm text-gray-500">Updated {new Date(project.updatedAt).toLocaleString()}</p>
+      <div>
+        <ProgressBar value={progressValue} label={`${completedItems}/${totalItems} completed`} />
+      </div>
     </header>
 
     <section class="space-y-8">

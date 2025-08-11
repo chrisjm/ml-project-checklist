@@ -49,6 +49,27 @@ export function createProjectsStore() {
       });
       return id;
     },
+    duplicateProject(id: string): string {
+      let newIdValue = '';
+      update((s) => {
+        s = structuredClone(s);
+        const p = s.projects[id];
+        if (!p) return s;
+        const id2 = newId();
+        const now = nowISO();
+        const copy: Project = {
+          ...structuredClone(p),
+          id: id2,
+          name: `${p.name} (Copy)`,
+          createdAt: now,
+          updatedAt: now
+        };
+        s.projects[id2] = copy;
+        newIdValue = id2;
+        return s;
+      });
+      return newIdValue;
+    },
     deleteProject(id: string) {
       update((s) => {
         s = structuredClone(s);
@@ -66,6 +87,43 @@ export function createProjectsStore() {
         }
         return s;
       });
+    },
+    exportProject(id: string): string {
+      let p: Project | undefined;
+      const unsub = subscribe((s) => {
+        p = s.projects[id];
+      });
+      unsub();
+      if (!p) throw new Error('Project not found');
+      return JSON.stringify({ version: STATE_VERSION, project: p }, null, 2);
+    },
+    importProject(json: string): string {
+      let data: unknown;
+      try {
+        data = JSON.parse(json);
+      } catch {
+        throw new Error('Invalid JSON');
+      }
+      const maybe: any = data as any;
+      const src = maybe?.project ?? maybe;
+      if (!src || typeof src !== 'object') throw new Error('Invalid project payload');
+      const name = typeof src.name === 'string' ? src.name : 'Imported Project';
+      const sections = Array.isArray(src.sections) ? src.sections : [];
+      const id = newId();
+      const now = nowISO();
+      const project: Project = {
+        id,
+        name,
+        createdAt: now,
+        updatedAt: now,
+        sections
+      };
+      update((s) => {
+        s = structuredClone(s);
+        s.projects[id] = project;
+        return s;
+      });
+      return id;
     },
     toggleItem(projectId: string, sectionId: string, itemId: string) {
       update((s) => {
