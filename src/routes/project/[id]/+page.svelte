@@ -3,10 +3,12 @@
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/stores/projects';
 	import type { Project } from '$lib/types';
-	import type { ChecklistItem as TChecklistItem } from '$lib/types';
 	import ChecklistSection from '$lib/components/ChecklistSection.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { EllipsisVertical, Pencil, Copy, Download, Trash2 } from 'lucide-svelte';
+	import { Pencil, Copy, Download, Trash2 } from 'lucide-svelte';
+	import { computeTotals, valueFromTotals, labelFromTotals } from '$lib/utils/progress';
+	import { download, safeFileName } from '$lib/utils/file';
+	import ActionsMenu from '$lib/components/common/ActionsMenu.svelte';
 
 	let params = $state<{ id: string }>({ id: '' });
 	$effect(() => {
@@ -26,18 +28,9 @@
 	});
 	const project = $derived(allProjects[projectId]);
 
-	const totalItems = $derived(
-		!project ? 0 : project.sections.reduce((sum, sec) => sum + sec.items.length, 0)
-	);
-	const completedItems = $derived(
-		!project
-			? 0
-			: project.sections.reduce(
-					(sum, sec) => sum + sec.items.filter((i: TChecklistItem) => i.checked).length,
-					0
-				)
-	);
-	const progressValue = $derived(totalItems === 0 ? 0 : completedItems / totalItems);
+	const totals = $derived(computeTotals(project));
+	const progressValue = $derived(valueFromTotals(totals));
+	const progressLabel = $derived(labelFromTotals(totals));
 
 	function toggle(sectionId: string, itemId: string) {
 		projects.toggleItem(projectId, sectionId, itemId);
@@ -62,20 +55,12 @@
 		const newId = projects.duplicateProject(projectId);
 		goto(`/project/${newId}`);
 	}
-	function download(filename: string, text: string) {
-		const blob = new Blob([text], { type: 'application/json' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = filename;
-		a.click();
-		URL.revokeObjectURL(url);
-	}
+	// download helper moved to '$lib/utils/file'
 	function exportProject() {
 		if (!project) return;
 		try {
 			const json = projects.exportProject(projectId);
-			const safe = (project.name || 'project').replace(/[^a-z0-9-_]+/gi, '_');
+			const safe = safeFileName(project.name || 'project');
 			download(`${safe}.json`, json);
 		} catch (e) {
 			alert(String(e));
@@ -89,33 +74,7 @@
 		}
 	}
 
-	// Actions menu state and a11y
-	let menuOpen = $state(false);
-	function toggleMenu() {
-		menuOpen = !menuOpen;
-	}
-	function onAction(fn: () => void) {
-		fn();
-		menuOpen = false;
-	}
-	$effect(() => {
-		function onKey(e: KeyboardEvent) {
-			if (e.key === 'Escape') menuOpen = false;
-		}
-		function onDown(e: Event) {
-			const t = e.target as HTMLElement | null;
-			if (!t) return;
-			if (!t.closest('[data-actions-menu]') && !t.closest('[data-actions-trigger]')) {
-				menuOpen = false;
-			}
-		}
-		document.addEventListener('keydown', onKey);
-		document.addEventListener('pointerdown', onDown, true);
-		return () => {
-			document.removeEventListener('keydown', onKey);
-			document.removeEventListener('pointerdown', onDown, true);
-		};
-	});
+	// Actions menu handled by shared component
 </script>
 
 <div class="mx-auto max-w-4xl space-y-8 p-6">
@@ -137,44 +96,57 @@
 			<div class="flex items-start justify-between gap-2">
 				<div>
 					<h1 class="text-2xl font-semibold">{project.name}</h1>
-					<p class="text-sm text-gray-500">Updated {new Date(project.updatedAt).toLocaleString()}</p>
+					<p class="text-sm text-gray-500">
+						Updated {new Date(project.updatedAt).toLocaleString()}
+					</p>
 				</div>
-				<div class="relative">
-					<button
-						class="rounded border p-2 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-						aria-haspopup="menu"
-						aria-label="Project actions"
-						aria-expanded={menuOpen}
-						onclick={toggleMenu}
-						data-actions-trigger
-					>
-						<span class="sr-only">Project actions</span>
-						<EllipsisVertical size={18} aria-hidden="true" />
-					</button>
-					{#if menuOpen}
-						<div class="absolute right-0 z-10 mt-2 w-48 overflow-hidden rounded border bg-white shadow-lg" data-actions-menu>
-							<button class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" onclick={() => onAction(renameProject)}>
+				<div>
+					<ActionsMenu label="Project actions" let:close>
+						<button
+							class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+							onclick={() => {
+								renameProject();
+								close();
+							}}
+						>
 								<Pencil size={14} aria-hidden="true" />
 								<span>Rename</span>
 							</button>
-							<button class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" onclick={() => onAction(duplicateProject)}>
+						<button
+							class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+							onclick={() => {
+								duplicateProject();
+								close();
+							}}
+						>
 								<Copy size={14} aria-hidden="true" />
 								<span>Duplicate</span>
 							</button>
-							<button class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" onclick={() => onAction(exportProject)}>
+							<button
+								class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+								onclick={() => {
+									exportProject();
+									close();
+								}}
+							>
 								<Download size={14} aria-hidden="true" />
 								<span>Export</span>
 							</button>
-							<button class="flex w-full items-center gap-2 px-3 py-2 text-left text-red-700 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500" onclick={() => onAction(deleteProject)}>
+							<button
+								class="flex w-full items-center gap-2 px-3 py-2 text-left text-red-700 hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
+								onclick={() => {
+									deleteProject();
+									close();
+								}}
+							>
 								<Trash2 size={14} aria-hidden="true" />
 								<span>Delete</span>
 							</button>
-						</div>
-					{/if}
+					</ActionsMenu>
 				</div>
 			</div>
 			<div>
-				<ProgressBar value={progressValue} label={`${completedItems}/${totalItems} completed`} />
+				<ProgressBar value={progressValue} label={progressLabel} />
 			</div>
 		</header>
 
