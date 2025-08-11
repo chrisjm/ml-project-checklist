@@ -2,7 +2,7 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import ThemeToggle from '$lib/components/common/ThemeToggle.svelte';
-	import { ListTodo } from 'lucide-svelte';
+	import { ListTodo, Info, HelpCircle } from 'lucide-svelte';
 
 	let { children } = $props();
 </script>
@@ -47,6 +47,14 @@
 				<nav class="hidden items-center gap-4 text-sm text-gray-700 sm:flex dark:text-gray-300">
 					<a href="/about" class="hover:underline">About</a>
 					<a href="/help" class="hover:underline">Help</a>
+				</nav>
+				<nav class="flex items-center gap-1 text-gray-700 sm:hidden dark:text-gray-300">
+					<a href="/about" aria-label="About" class="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-800">
+						<Info size={20} aria-hidden="true" />
+					</a>
+					<a href="/help" aria-label="Help" class="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-800">
+						<HelpCircle size={20} aria-hidden="true" />
+					</a>
 				</nav>
 				<ThemeToggle />
 			</div>
