@@ -77,6 +77,11 @@
 	// Actions menu handled by shared component
 </script>
 
+<svelte:head>
+	<title>Project — ML Project Checklist</title>
+	<meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
 <div class="mx-auto max-w-4xl space-y-8 p-6">
 	<nav>
 		<a class="text-sm text-blue-700 hover:underline dark:text-blue-400" href="/"

@@ -75,6 +75,22 @@
 	// Actions menu handled by shared component
 </script>
 
+<svelte:head>
+	<title>ML Project Checklist — Plan, track and ship ML projects</title>
+	<meta
+		name="description"
+		content="Local-first checklist to plan, track, and ship machine learning projects. Create projects in your browser, no sign-in. Export/Import as JSON."
+	/>
+	<meta property="og:title" content="ML Project Checklist" />
+	<meta
+		property="og:description"
+		content="Local-first checklist to plan, track, and ship machine learning projects."
+	/>
+	<meta property="og:type" content="website" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="theme-color" content="#0b69f4" />
+</svelte:head>
+
 <div class="mx-auto max-w-3xl space-y-4 p-4">
 	<header class="flex items-center justify-end gap-2">
 		<div class="flex items-center gap-2">
@@ -140,8 +156,10 @@
 		>
 			{#each projectList as p (p.id)}
 				<li class="flex items-center justify-between gap-4 p-4">
-					<a class="min-w-0 flex-1 truncate font-medium hover:underline" href={`/project/${p.id}`}
-						>{p.name}</a
+					<a
+						class="min-w-0 flex-1 truncate font-medium hover:underline"
+						href={`/project/${p.id}`}
+						rel="nofollow">{p.name}</a
 					>
 					<div class="hidden w-64 sm:block">
 						<ProgressBar value={progressValue(p)} label={progressLabel(p)} />
