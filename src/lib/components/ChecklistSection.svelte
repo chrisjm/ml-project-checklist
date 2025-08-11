@@ -4,11 +4,15 @@
 	import NotesEditor from '$lib/components/NotesEditor.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import type { ChecklistItem as TChecklistItem } from '$lib/types';
+	import ChecklistItemEditor from '$lib/components/ChecklistItemEditor.svelte';
 
-	let { section, onToggle, onNotes } = $props<{
+	let { section, onToggle, onNotes, onText, onDelete, onReorder } = $props<{
 		section: TChecklistSection;
 		onToggle: (sectionId: string, itemId: string) => void;
 		onNotes: (sectionId: string, value: string) => void;
+		onText: (sectionId: string, itemId: string, value: string) => void;
+		onDelete: (sectionId: string, itemId: string) => void;
+		onReorder: (sectionId: string, fromIndex: number, toIndex: number) => void;
 	}>();
 
 	function handleToggle(itemId: string) {
@@ -18,10 +22,23 @@
 		onNotes(section.id, value);
 	}
 
+	function handleText(itemId: string, value: string) {
+		onText(section.id, itemId, value);
+	}
+	function handleDelete(itemId: string) {
+		onDelete(section.id, itemId);
+	}
+	function handleReorder(fromIndex: number, toIndex: number) {
+		onReorder(section.id, fromIndex, toIndex);
+	}
+
 	// Progress for this section
 	const total = $derived(section.items.length);
 	const completed = $derived(section.items.filter((i: TChecklistItem) => i.checked).length);
 	const value = $derived(total === 0 ? 0 : completed / total);
+
+	// Per-section edit mode
+	let editing = $state(false);
 </script>
 
 <div
@@ -29,14 +46,36 @@
 >
 	<div class="mb-3 flex items-end justify-between gap-4">
 		<h2 class="text-lg font-medium tracking-tight">{section.title}</h2>
-		<div class="text-sm text-gray-600 dark:text-gray-400">{completed}/{total} completed</div>
+		<div class="flex items-center gap-3">
+			<div class="text-sm text-gray-600 dark:text-gray-400">{completed}/{total} completed</div>
+			<button
+				class="text-xs text-blue-700 hover:underline focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:text-blue-400"
+				onclick={() => (editing = !editing)}
+				aria-pressed={editing}
+			>
+				{editing ? 'Done' : 'Edit'}
+			</button>
+		</div>
 	</div>
 	<div class="mb-4">
 		<ProgressBar {value} label={`${Math.round(value * 100)}%`} />
 	</div>
 	<ul class="space-y-2">
-		{#each section.items as item (item.id)}
-			<ChecklistItem {item} onToggle={handleToggle} />
+		{#each section.items as item, i (item.id)}
+			{#if editing}
+				<ChecklistItemEditor
+					{item}
+					onToggle={handleToggle}
+					onText={handleText}
+					onDelete={handleDelete}
+					onMoveUp={() => handleReorder(i, i - 1)}
+					onMoveDown={() => handleReorder(i, i + 1)}
+					disableUp={i === 0}
+					disableDown={i === section.items.length - 1}
+				/>
+			{:else}
+				<ChecklistItem {item} onToggle={handleToggle} />
+			{/if}
 		{/each}
 	</ul>
 

@@ -174,6 +174,45 @@ export function createProjectsStore() {
 				return s;
 			});
 		},
+		updateItemText(projectId: string, sectionId: string, itemId: string, text: string) {
+			update((s) => {
+				s = structuredClone(s);
+				const p = s.projects[projectId];
+				const sec = p?.sections.find((x) => x.id === sectionId);
+				if (sec) {
+					const it = sec.items.find((x) => x.id === itemId);
+					if (it) {
+						it.text = text.trim();
+						p!.updatedAt = nowISO();
+					}
+				}
+				return s;
+			});
+		},
+		reorderItem(projectId: string, sectionId: string, fromIndex: number, toIndex: number) {
+			update((s) => {
+				s = structuredClone(s);
+				const p = s.projects[projectId];
+				const sec = p?.sections.find((x) => x.id === sectionId);
+				if (sec) {
+					const items = sec.items;
+					if (
+						Number.isInteger(fromIndex) &&
+						Number.isInteger(toIndex) &&
+						fromIndex >= 0 &&
+						toIndex >= 0 &&
+						fromIndex < items.length &&
+						toIndex < items.length &&
+						fromIndex !== toIndex
+					) {
+						const [moved] = items.splice(fromIndex, 1);
+						items.splice(toIndex, 0, moved);
+						p!.updatedAt = nowISO();
+					}
+				}
+				return s;
+			});
+		},
 		updateNotes(projectId: string, sectionId: string, notes: string) {
 			update((s) => {
 				s = structuredClone(s);

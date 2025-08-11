@@ -45,6 +45,17 @@
 		projects.updateNotes(projectId, sectionId, value);
 	}
 
+	// Editing handlers
+	function updateItemText(sectionId: string, itemId: string, value: string) {
+		projects.updateItemText(projectId, sectionId, itemId, value);
+	}
+	function deleteItem(sectionId: string, itemId: string) {
+		projects.removeItem(projectId, sectionId, itemId);
+	}
+	function reorderItem(sectionId: string, fromIndex: number, toIndex: number) {
+		projects.reorderItem(projectId, sectionId, fromIndex, toIndex);
+	}
+
 	// Project-level actions
 	function renameProject() {
 		if (!project) return;
@@ -161,7 +172,14 @@
 
 		<section class="space-y-8">
 			{#each project.sections as sec (sec.id)}
-				<ChecklistSection section={sec} onToggle={toggle} onNotes={updateNotesValue} />
+				<ChecklistSection
+					section={sec}
+					onToggle={toggle}
+					onNotes={updateNotesValue}
+					onText={updateItemText}
+					onDelete={deleteItem}
+					onReorder={reorderItem}
+				/>
 			{/each}
 		</section>
 	{/if}
