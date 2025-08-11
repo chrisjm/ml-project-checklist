@@ -4,6 +4,7 @@
 	import type { ChecklistItem as TChecklistItem } from '$lib/types';
 	import { goto } from '$app/navigation';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import { EllipsisVertical, Pencil, Copy, Download, Trash2, Plus, Upload } from 'lucide-svelte';
 
 	let allProjects = $state<Record<string, Project>>({});
 	let hydrated = $state(false);
@@ -94,18 +95,35 @@
 			alert(String(e));
 		}
 	}
+
+	// Mobile actions menu
+	let openMenuId = $state<string | null>(null);
+	function toggleMenu(id: string) {
+		openMenuId = openMenuId === id ? null : id;
+	}
+	function onMobileAction(fn: () => void) {
+		fn();
+		openMenuId = null;
+	}
 </script>
 
 <div class="mx-auto max-w-3xl space-y-6 p-6">
-	<header class="flex items-center justify-between gap-3">
+	<header class="flex items-center justify-between gap-2">
 		<h1 class="text-2xl font-semibold">ML Project Checklist</h1>
 		<div class="flex items-center gap-2">
-			<button class="rounded border px-3 py-2 hover:bg-gray-50" onclick={onImport}>Import</button>
 			<button
-				class="rounded bg-blue-600 px-3 py-2 text-white hover:bg-blue-700"
+				class="inline-flex items-center gap-1 rounded border px-3 py-2 hover:bg-gray-50"
+				onclick={onImport}
+			>
+				<Upload size={16} aria-hidden="true" />
+				<span>Import</span>
+			</button>
+			<button
+				class="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-white hover:bg-blue-700"
 				onclick={onNewProject}
 			>
-				New Project
+				<Plus size={16} aria-hidden="true" />
+				<span>New Project</span>
 			</button>
 		</div>
 	</header>
@@ -148,26 +166,54 @@
 					<a class="min-w-0 flex-1 truncate font-medium hover:underline" href={`/project/${p.id}`}
 						>{p.name}</a
 					>
-					<div class="hidden w-64 md:block">
+					<div class="hidden w-64 sm:block">
 						<ProgressBar value={progressValue(p)} label={progressLabel(p)} />
 					</div>
-					<div class="flex items-center gap-2 text-sm">
+					<div class="relative">
 						<button
-							class="rounded border px-2 py-1 hover:bg-gray-50"
-							onclick={() => onRename(p.id, p.name)}>Rename</button
+							class="rounded border p-2 hover:bg-gray-50"
+							aria-haspopup="menu"
+							aria-label="Actions"
+							aria-expanded={openMenuId === p.id}
+							onclick={() => toggleMenu(p.id)}
 						>
-						<button
-							class="rounded border px-2 py-1 hover:bg-gray-50"
-							onclick={() => onDuplicate(p.id)}>Duplicate</button
-						>
-						<button
-							class="rounded border px-2 py-1 hover:bg-gray-50"
-							onclick={() => onExport(p.id, p.name)}>Export</button
-						>
-						<button
-							class="rounded border border-red-200 px-2 py-1 text-red-700 hover:bg-red-50"
-							onclick={() => onDelete(p.id)}>Delete</button
-						>
+							<span class="sr-only">Actions</span>
+							<EllipsisVertical size={18} aria-hidden="true" />
+						</button>
+						{#if openMenuId === p.id}
+							<div
+								class="absolute right-0 z-10 mt-2 w-44 overflow-hidden rounded border bg-white shadow-lg"
+							>
+								<button
+									class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50"
+									onclick={() => onMobileAction(() => onRename(p.id, p.name))}
+								>
+									<Pencil size={14} aria-hidden="true" />
+									<span>Rename</span>
+								</button>
+								<button
+									class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50"
+									onclick={() => onMobileAction(() => onDuplicate(p.id))}
+								>
+									<Copy size={14} aria-hidden="true" />
+									<span>Duplicate</span>
+								</button>
+								<button
+									class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50"
+									onclick={() => onMobileAction(() => onExport(p.id, p.name))}
+								>
+									<Download size={14} aria-hidden="true" />
+									<span>Export</span>
+								</button>
+								<button
+									class="flex w-full items-center gap-2 px-3 py-2 text-left text-red-700 hover:bg-red-50"
+									onclick={() => onMobileAction(() => onDelete(p.id))}
+								>
+									<Trash2 size={14} aria-hidden="true" />
+									<span>Delete</span>
+								</button>
+							</div>
+						{/if}
 					</div>
 				</li>
 			{/each}
