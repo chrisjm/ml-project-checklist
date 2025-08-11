@@ -55,6 +55,9 @@
 	function reorderItem(sectionId: string, fromIndex: number, toIndex: number) {
 		projects.reorderItem(projectId, sectionId, fromIndex, toIndex);
 	}
+	function addItem(sectionId: string, text: string) {
+		projects.addItem(projectId, sectionId, text);
+	}
 
 	// Project-level actions
 	function renameProject() {
@@ -179,6 +182,7 @@
 					onText={updateItemText}
 					onDelete={deleteItem}
 					onReorder={reorderItem}
+					onAdd={addItem}
 				/>
 			{/each}
 		</section>

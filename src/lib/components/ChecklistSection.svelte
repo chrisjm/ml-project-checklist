@@ -6,13 +6,14 @@
 	import type { ChecklistItem as TChecklistItem } from '$lib/types';
 	import ChecklistItemEditor from '$lib/components/ChecklistItemEditor.svelte';
 
-	let { section, onToggle, onNotes, onText, onDelete, onReorder } = $props<{
+	let { section, onToggle, onNotes, onText, onDelete, onReorder, onAdd } = $props<{
 		section: TChecklistSection;
 		onToggle: (sectionId: string, itemId: string) => void;
 		onNotes: (sectionId: string, value: string) => void;
 		onText: (sectionId: string, itemId: string, value: string) => void;
 		onDelete: (sectionId: string, itemId: string) => void;
 		onReorder: (sectionId: string, fromIndex: number, toIndex: number) => void;
+		onAdd: (sectionId: string, text: string) => void;
 	}>();
 
 	function handleToggle(itemId: string) {
@@ -39,6 +40,16 @@
 
 	// Per-section edit mode
 	let editing = $state(false);
+
+	// New item state (edit mode)
+	let newItemText = $state('');
+	const canAdd = $derived(newItemText.trim().length > 0);
+	function addNewItem() {
+		const value = newItemText.trim();
+		if (!value) return;
+		onAdd(section.id, value);
+		newItemText = '';
+	}
 </script>
 
 <div
@@ -78,6 +89,27 @@
 			{/if}
 		{/each}
 	</ul>
+
+	{#if editing}
+		<div class="mt-3 flex items-center gap-2">
+			<input
+				class="flex-1 rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+				placeholder="New item"
+				value={newItemText}
+				oninput={(e) => (newItemText = (e.target as HTMLInputElement).value)}
+				onkeydown={(e) => {
+					if ((e as KeyboardEvent).key === 'Enter') addNewItem();
+				}}
+			/>
+			<button
+				class="rounded bg-blue-600 px-3 py-1 text-sm font-medium text-white disabled:opacity-50 dark:bg-blue-500"
+				disabled={!canAdd}
+				onclick={addNewItem}
+			>
+				Add
+			</button>
+		</div>
+	{/if}
 
 	<div class="mt-4">
 		<NotesEditor id={'notes-' + section.id} value={section.notes} onInput={handleNotes} />
