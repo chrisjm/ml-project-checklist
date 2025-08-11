@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { ProjectsState, Project } from '$lib/types';
+import type { ProjectsState, Project, Theme } from '$lib/types';
 import { STATE_VERSION, newId } from '$lib/types';
 import { loadState, saveState } from '$lib/storage/local';
 import { createDefaultSections } from '$lib/data/template';
@@ -17,13 +17,19 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
 }
 
 export function createProjectsStore() {
-  const initial: ProjectsState = loadState() ?? { version: STATE_VERSION, projects: {} };
+  const loaded = loadState();
+  const initial: ProjectsState = loaded ?? { version: STATE_VERSION, projects: {}, theme: 'system' };
   const { subscribe, update, set } = writable<ProjectsState>(initial);
 
   const persist = debounce((state: ProjectsState) => saveState(state), 150);
 
-  // persist on changes
+  // simple migration: ensure theme exists
   subscribe((state) => {
+    if (!(state as any).theme) {
+      // migrate in-memory state to include theme
+      set({ ...state, theme: 'system' });
+      return;
+    }
     // update updatedAt for projects could be done per mutation; keep persist only here
     persist(state);
   });
@@ -175,6 +181,9 @@ export function createProjectsStore() {
         }
         return s;
       });
+    },
+    setTheme(theme: Theme) {
+      update((s) => ({ ...s, theme }));
     }
   };
 }

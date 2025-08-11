@@ -19,9 +19,12 @@ export interface Project {
   sections: ChecklistSection[];
 }
 
+export type Theme = 'light' | 'dark' | 'system';
+
 export interface ProjectsState {
   version: number;
   projects: Record<string, Project>;
+  theme: Theme;
 }
 
 export const STATE_VERSION = 1;

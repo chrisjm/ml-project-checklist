@@ -1,10 +1,16 @@
 <script lang="ts">
 	import { EllipsisVertical } from 'lucide-svelte';
 
-	const { label = 'Actions', align = 'right', width = 'w-48' } = $props<{
+	const {
+		label = 'Actions',
+		align = 'right',
+		width = 'w-48',
+		children
+	} = $props<{
 		label?: string;
 		align?: 'left' | 'right';
 		width?: string;
+		children?: (args?: any) => any;
 	}>();
 
 	let open = $state(false);
@@ -37,7 +43,7 @@
 
 <div class="relative" bind:this={root}>
 	<button
-		class="rounded border p-2 hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+		class="rounded border border-gray-200 bg-white/80 p-2 text-gray-700 shadow-sm backdrop-blur hover:bg-white focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-200 dark:hover:bg-gray-800 dark:focus-visible:ring-offset-gray-900"
 		aria-haspopup="menu"
 		aria-label={label}
 		aria-expanded={open}
@@ -47,8 +53,11 @@
 		<EllipsisVertical size={18} aria-hidden="true" />
 	</button>
 	{#if open}
-		<div class={`absolute ${align === 'right' ? 'right-0' : 'left-0'} z-10 mt-2 ${width} overflow-hidden rounded border bg-white shadow-lg`} role="menu">
-			<slot {close} />
+		<div
+			class={`absolute ${align === 'right' ? 'right-0' : 'left-0'} z-10 mt-2 ${width} overflow-hidden rounded border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900`}
+			role="menu"
+		>
+			{@render children?.({ close })}
 		</div>
 	{/if}
 </div>

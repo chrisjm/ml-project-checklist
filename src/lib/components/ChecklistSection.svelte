@@ -24,10 +24,12 @@
 	const value = $derived(total === 0 ? 0 : completed / total);
 </script>
 
-<div class="rounded border bg-white p-4">
+<div
+	class="rounded border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+>
 	<div class="mb-3 flex items-end justify-between gap-4">
-		<h2 class="text-lg font-medium">{section.title}</h2>
-		<div class="text-sm text-gray-600">{completed}/{total} completed</div>
+		<h2 class="text-lg font-medium tracking-tight">{section.title}</h2>
+		<div class="text-sm text-gray-600 dark:text-gray-400">{completed}/{total} completed</div>
 	</div>
 	<div class="mb-4">
 		<ProgressBar {value} label={`${Math.round(value * 100)}%`} />

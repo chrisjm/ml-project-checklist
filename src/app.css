@@ -2,3 +2,11 @@
 
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+/* Use class-based dark mode in Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+
+/* Improve default rendering and color-scheme */
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
