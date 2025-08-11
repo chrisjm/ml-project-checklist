@@ -6,9 +6,11 @@
   import ProgressBar from '$lib/components/ProgressBar.svelte';
 
   let allProjects = $state<Record<string, Project>>({});
+  let hydrated = $state(false);
   $effect(() => {
     const unsub = projects.subscribe((s) => {
       allProjects = s.projects;
+      hydrated = true;
     });
     return unsub;
   });
@@ -105,7 +107,28 @@
     </div>
   </header>
 
-  {#if isEmpty}
+  {#if !hydrated}
+    <div class="space-y-3">
+      <div class="rounded border bg-white p-4">
+        <div class="animate-pulse space-y-3">
+          <div class="h-5 w-1/3 rounded bg-gray-200"></div>
+          <div class="h-2 w-full rounded bg-gray-200"></div>
+        </div>
+      </div>
+      <div class="rounded border bg-white p-4">
+        <div class="animate-pulse space-y-3">
+          <div class="h-5 w-1/2 rounded bg-gray-200"></div>
+          <div class="h-2 w-5/6 rounded bg-gray-200"></div>
+        </div>
+      </div>
+      <div class="rounded border bg-white p-4">
+        <div class="animate-pulse space-y-3">
+          <div class="h-5 w-1/4 rounded bg-gray-200"></div>
+          <div class="h-2 w-2/3 rounded bg-gray-200"></div>
+        </div>
+      </div>
+    </div>
+  {:else if isEmpty}
     <div class="rounded border border-dashed p-6 text-center text-gray-600">
       <p class="mb-3">No projects yet.</p>
       <button class="rounded bg-blue-600 px-3 py-2 text-white hover:bg-blue-700" onclick={onNewProject}>
