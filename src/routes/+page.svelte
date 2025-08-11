@@ -96,7 +96,7 @@
 		}
 	}
 
-	// Mobile actions menu
+	// Actions menu state
 	let openMenuId = $state<string | null>(null);
 	function toggleMenu(id: string) {
 		openMenuId = openMenuId === id ? null : id;
@@ -105,6 +105,26 @@
 		fn();
 		openMenuId = null;
 	}
+	// Close menus on Escape and outside click
+	$effect(() => {
+		function onKey(e: KeyboardEvent) {
+			if (e.key === 'Escape') openMenuId = null;
+		}
+		function onDown(e: Event) {
+			const t = e.target as HTMLElement | null;
+			if (!t) return;
+			if (!t.closest('[data-actions-menu]') && !t.closest('[data-actions-trigger]')) {
+				openMenuId = null;
+			}
+		}
+		document.addEventListener('keydown', onKey);
+		// use pointerdown so it closes before following links
+		document.addEventListener('pointerdown', onDown, true);
+		return () => {
+			document.removeEventListener('keydown', onKey);
+			document.removeEventListener('pointerdown', onDown, true);
+		};
+	});
 </script>
 
 <div class="mx-auto max-w-3xl space-y-6 p-6">
@@ -112,14 +132,14 @@
 		<h1 class="text-2xl font-semibold">ML Project Checklist</h1>
 		<div class="flex items-center gap-2">
 			<button
-				class="inline-flex items-center gap-1 rounded border px-3 py-2 hover:bg-gray-50"
+				class="inline-flex items-center gap-1 rounded border px-3 py-2 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
 				onclick={onImport}
 			>
 				<Upload size={16} aria-hidden="true" />
 				<span>Import</span>
 			</button>
 			<button
-				class="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-white hover:bg-blue-700"
+				class="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
 				onclick={onNewProject}
 			>
 				<Plus size={16} aria-hidden="true" />
@@ -171,11 +191,12 @@
 					</div>
 					<div class="relative">
 						<button
-							class="rounded border p-2 hover:bg-gray-50"
+							class="rounded border p-2 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
 							aria-haspopup="menu"
 							aria-label="Actions"
 							aria-expanded={openMenuId === p.id}
 							onclick={() => toggleMenu(p.id)}
+							data-actions-trigger
 						>
 							<span class="sr-only">Actions</span>
 							<EllipsisVertical size={18} aria-hidden="true" />
@@ -183,30 +204,31 @@
 						{#if openMenuId === p.id}
 							<div
 								class="absolute right-0 z-10 mt-2 w-44 overflow-hidden rounded border bg-white shadow-lg"
+								data-actions-menu
 							>
 								<button
-									class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50"
+									class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
 									onclick={() => onMobileAction(() => onRename(p.id, p.name))}
 								>
 									<Pencil size={14} aria-hidden="true" />
 									<span>Rename</span>
 								</button>
 								<button
-									class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50"
+									class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
 									onclick={() => onMobileAction(() => onDuplicate(p.id))}
 								>
 									<Copy size={14} aria-hidden="true" />
 									<span>Duplicate</span>
 								</button>
 								<button
-									class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50"
+									class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
 									onclick={() => onMobileAction(() => onExport(p.id, p.name))}
 								>
 									<Download size={14} aria-hidden="true" />
 									<span>Export</span>
 								</button>
 								<button
-									class="flex w-full items-center gap-2 px-3 py-2 text-left text-red-700 hover:bg-red-50"
+									class="flex w-full items-center gap-2 px-3 py-2 text-left text-red-700 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
 									onclick={() => onMobileAction(() => onDelete(p.id))}
 								>
 									<Trash2 size={14} aria-hidden="true" />
