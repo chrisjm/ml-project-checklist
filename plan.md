@@ -42,7 +42,7 @@ This phase implements the core features for creating, reading, updating, and del
 
 * **Task 2: Implement Project Creation**
     * On the main page, add a "New Project" button.
-    * When clicked, this button will prompt for a project name and then generate a new project object. This object will be pre-populated with the full checklist structure from your `homl-project-checklist.md` file.
+    * When clicked, this button will prompt for a project name and then generate a new project object. This object will be pre-populated with the full checklist structure from your `src/lib/data/ml-project-checklist-template.md` file.
     * The new project will be saved to LocalStorage via the store.
 
 * **Task 3: Implement Project List and Deletion**

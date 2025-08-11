@@ -1,7 +1,7 @@
 # Machine Learning Project Checklist
 
 - [ ] Frame the Problem; Look at the big picture
-  - [ ] Define the objective in business termss
+  - [ ] Define the objective in business terms
   - [ ] How will your solution be used?
   - [ ] What are the current solutions/workarounds (if any)?
   - [ ] How should you frame this problem (supervised/unsupervised, online/offline, etc.)?
@@ -23,14 +23,14 @@
   - [ ] Get the data
   - [ ] Convert the data to a format you can easily manipulate (without changing the data itself)
   - [ ] Ensure sensitive information is deleted or protected (e.g., anonymized)
-  - [ ] Check the size and type of data (times series, sample geographical, etc.)
+  - [ ] Check the size and type of data (time series, geospatial, etc.)
   - [ ] **Sample a test set, put it aside, and never look at it (no data snooping!)**
 - [ ] Discover and visualize the data to gain insights
   - [ ] Create a copy of the data for exploration (sampling it down to a manageable size if necessary)
   - [ ] Create a Jupyter notebook to keep a record of your data exploration
   - [ ] Study each attribute and its characteristics
     - Name
-    - Type (categorical, in/float, bounded/unbounded, text, structured, etc.)
+    - Type (categorical, int/float, bounded/unbounded, text, structured, etc.)
     - % of missing values
     - Noisiness and type of noise (stochastic, outliers, rounding errors, etc.)
     - Usefulness for the task
@@ -52,7 +52,7 @@
     - To make it easy to treat your preparation choices as hyperparameters
   - [ ] Data cleaning
     - Fix or remove outliers (optional and only as you move along so you're not doing extra work)
-    - Fill in missing values (e.g., with zero , mean, median...) or drop their rows (or columns); again optional and same rules as above.
+    - Fill in missing values (e.g., with zero, mean, median...) or drop their rows (or columns); again optional and same rules as above.
   - [ ] Feature selection (optional)
     - Drop the attributes that provide no useful information for the task
   - [ ] Feature engineering, where appropriate
@@ -74,7 +74,7 @@
   - [ ] Perform one or two more quick iterations of the five previous steps
   - [ ] Shortlist the top three to five most promising models, preferring models that make different types of errors
 - [ ] Fine-tune your model
-  - [ ] Fine-tine the hyperparameters using cross-validation
+  - [ ] Fine-tune the hyperparameters using cross-validation
     - Treat your data transformation choices as hyperparameters, especially when you are not sure about them (e.g., if you're not sure whether to replace missing values with zeros or with the median value, or to just drop the rows)
     - Unless there are very few hyperparameter values to explore, prefer random search over grid search. If training is very long, you may prefer a Bayesian optimizer approach (e.g., using Gaussian process priors)
   - [ ] Try Ensemble methods. Combining your best model will often produce better performance than running them individually
